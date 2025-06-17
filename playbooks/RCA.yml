@@ -3,28 +3,45 @@
   hosts: localhost
   gather_facts: false
   tasks:
-    - name: Set facts
-      ansible.builtin.set_fact:
-        rca_prompt: "Why did job 5314 fail? Give me instructions on how to fix it"
+    # - name: Set facts
+    #   ansible.builtin.set_fact:
+    #     rca_prompt: "Why did job 5314 fail? Give me instructions on how to fix it"
 
-    - name: Send prompt to AAP MCP Client for RCA
-      ansible.builtin.uri:
-        url: "http://ec2-13-41-159-27.eu-west-2.compute.amazonaws.com:8001/chat"
-        method: POST
-        headers:
-          accept: "application/json"
-          Content-Type: "application/json"
-        body:
-          prompt: "{{ rca_prompt }}"
-        body_format: json
-        return_content: true
-        status_code: 200
-        timeout: 120
-      register: rca_response
+    # - name: Send prompt to AAP MCP Client for RCA
+    #   ansible.builtin.uri:
+    #     url: "http://ec2-13-41-159-27.eu-west-2.compute.amazonaws.com:8001/chat"
+    #     method: POST
+    #     headers:
+    #       accept: "application/json"
+    #       Content-Type: "application/json"
+    #     body:
+    #       prompt: "{{ rca_prompt }}"
+    #     body_format: json
+    #     return_content: true
+    #     status_code: 200
+    #     timeout: 120
+    #   register: rca_response
 
-    - name: Debug
-      ansible.builtin.debug:
-        var: rca_response
+    # - name: Debug
+    #   ansible.builtin.debug:
+    #     var: rca_response
+
+    # - name: Send prompt to ServiceNow MCP Client to check if any existing problems exist
+    #   ansible.builtin.uri:
+    #     url: "http://ec2-13-41-159-27.eu-west-2.compute.amazonaws.com:5000/chat"
+    #     method: POST
+    #     headers:
+    #       accept: "application/json"
+    #       Content-Type: "application/json"
+    #     body:
+    #       prompt: >-
+    #         An Ansible job has failed giving the following output: {{ rca_response.json.answer }},
+    #         search the problem records for anything relating to this and give me the problem number if you find anything?
+    #     body_format: json
+    #     return_content: true
+    #     status_code: 200
+    #     timeout: 120
+    #   register: snow_problem_response
 
     - name: Send prompt to ServiceNow MCP Client to check if any existing problems exist
       ansible.builtin.uri:
@@ -35,8 +52,7 @@
           Content-Type: "application/json"
         body:
           prompt: >-
-            An Ansible job has failed giving the following output: {{ rca_response.json.answer }},
-            search the problem records for anything relating to this and give me the problem number if you find anything?
+            Are there any servicenow problems relating to laptop performance issues? If so, give me the problem number.
         body_format: json
         return_content: true
         status_code: 200
