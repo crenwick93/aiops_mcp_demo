@@ -26,7 +26,8 @@
       ansible.builtin.debug:
         var: rca_response
 
-    - name: Send prompt to ServiceNow MCP Client to check if any existing problems exist
+    # This will search short description and description within the problem records for a related problem.
+    - name: Send prompt to ServiceNow MCP Client to check if any existing problems exist.
       ansible.builtin.uri:
         url: "http://ec2-13-41-159-27.eu-west-2.compute.amazonaws.com:5000/chat"
         method: POST
