@@ -7,7 +7,7 @@
       ansible.builtin.set_fact:
         rca_prompt: "Why did job 5314 fail? Give me instructions on how to fix it"
 
-    - name: Send RCA prompt to AAP MCP Client
+    - name: Send prompt to AAP MCP Client for RCA
       ansible.builtin.uri:
         url: "http://ec2-13-41-159-27.eu-west-2.compute.amazonaws.com:8001/chat"
         method: POST
@@ -26,24 +26,27 @@
       ansible.builtin.debug:
         var: rca_response
 
-    # - name: Check if response is JSON and debug output
-    #   ansible.builtin.debug:
-    #     msg: "{{ gpt_response.json if gpt_response.json is defined else gpt_response.content }}"
+    - name: Set stats for next controller job
+      ansible.builtin.set_stats:
+        data:
+          rca_response: "{{ rca_response.json.answer }}"
 
-    # - name: Check if response is JSON and debug rca output
-    #   ansible.builtin.debug:
-    #     msg: "{{ rca_response.json if rca_response.json is defined else rca_response.content }}"
+    - name: Send prompt to ServiceNow MCP Client to check if any existing problems exist
+      ansible.builtin.uri:
+        url: "http://ec2-13-41-159-27.eu-west-2.compute.amazonaws.com:5000/chat"
+        method: POST
+        headers:
+          accept: "application/json"
+          Content-Type: "application/json"
+        body:
+          prompt: "An Ansible job has failed giving the following output: {{ rca_response }}, are there any ServiceNow problems relating to that?"
+        body_format: json
+        return_content: true
+        status_code: 200
+        timeout: 120
+      register: snow_problem_response
 
-    # - name: Set stats for next controller job
-    #   ansible.builtin.set_stats:
-    #     data:
-    #       gpt_response: "{{ gpt_response }}"
-    #       rca_response: "{{ rca_response }}"
+    - name: Debug
+      ansible.builtin.debug:
+        var: snow_problem_response.json.answer
 
-    # - name: Debug gpt response
-    #   ansible.builtin.debug:
-    #     var: gpt_response
-
-    # - name: Debug RCA response
-    #   ansible.builtin.debug:
-    #     var: rca_response
