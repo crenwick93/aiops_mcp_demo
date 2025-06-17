@@ -1,0 +1,12 @@
+---
+
+- name: Install node exporter on application server
+  hosts: prometheus-am
+  become: true
+  vars_files:
+    - ../vault.yml
+  vars:
+    eda_webhook_url: https://aap.sandbox566.opentlc.com/eda-event-streams/api/eda/v1/external_event_stream/4302073b-98e1-4be3-9d72-03a24e7e9000/post/
+  roles:
+    - prometheus
+    - alertmanager
