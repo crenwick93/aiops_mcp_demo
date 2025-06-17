@@ -52,7 +52,7 @@
           Content-Type: "application/json"
         body:
           prompt: >-
-            Are there any servicenow problems relating to laptop performance issues? If so, give me the problem number.
+            Are there any servicenow problems relating to ansible? If so, give me the problem number.
         body_format: json
         return_content: true
         status_code: 200
