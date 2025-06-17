@@ -26,11 +26,6 @@
       ansible.builtin.debug:
         var: rca_response
 
-    - name: Set stats for next controller job
-      ansible.builtin.set_stats:
-        data:
-          rca_response: "{{ rca_response.json.answer }}"
-
     - name: Send prompt to ServiceNow MCP Client to check if any existing problems exist
       ansible.builtin.uri:
         url: "http://ec2-13-41-159-27.eu-west-2.compute.amazonaws.com:5000/chat"
@@ -39,7 +34,7 @@
           accept: "application/json"
           Content-Type: "application/json"
         body:
-          prompt: "An Ansible job has failed giving the following output: {{ rca_response }}, are there any ServiceNow problems relating to that?"
+          prompt: "An Ansible job has failed giving the following output: {{ rca_response.json.answer }}, are there any ServiceNow problems relating to that?"
         body_format: json
         return_content: true
         status_code: 200
