@@ -34,7 +34,9 @@
           accept: "application/json"
           Content-Type: "application/json"
         body:
-          prompt: "An Ansible job has failed giving the following output: {{ rca_response.json.answer }}, are there any ServiceNow problems relating to that?"
+          prompt: >-
+            An Ansible job has failed giving the following output: {{ rca_response.json.answer }},
+            search the problem records for anything relating to this and give me the problem number if you find anything?
         body_format: json
         return_content: true
         status_code: 200
@@ -44,4 +46,3 @@
     - name: Debug
       ansible.builtin.debug:
         var: snow_problem_response.json.answer
-
