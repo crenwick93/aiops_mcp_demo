@@ -1,0 +1,41 @@
+---
+- name: Restore nginx config from backup file
+  hosts: "{{ target_host }}"
+  become: true
+  vars:
+    nginx_config_path: /etc/nginx/nginx.conf
+    nginx_config_backup_path: /etc/nginx/nginx.conf.bak
+
+  tasks:
+
+    - name: Ensure backup file exists
+      ansible.builtin.stat:
+        path: "{{ nginx_config_backup_path }}"
+      register: ssl_conf_backup
+
+    - name: Restore nginx ssl.conf from backup
+      ansible.builtin.copy:
+        src: "{{ nginx_config_backup_path }}"
+        dest: "{{ nginx_config_path }}"
+        remote_src: true
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Test nginx configuration
+      ansible.builtin.command: nginx -t
+      register: nginx_test
+      ignore_errors: true
+
+    - name: Fail if nginx configuration test fails
+      ansible.builtin.fail:
+        msg: >
+          nginx configuration test failed after restoring config.
+          stderr: {{ nginx_test.stderr }}
+      when: nginx_test.rc != 0
+
+    - name: Reload nginx if config is valid
+      ansible.builtin.service:
+        name: nginx
+        state: reloaded
+      when: nginx_test.rc == 0

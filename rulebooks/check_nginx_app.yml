@@ -31,89 +31,68 @@
 ###############################################################################################
 #### RULES BELOW WILL BE TRIGGERED ON SECOND RUN (POST_EVENTS:TRUE) IF ANY CONDITIONS MATCH ###
 
-    # # Working remediation
-    # - name: Remediate TLS certificate issue
-    #   condition: >
-    #       event.diagnostics is defined and
-    #       event.diagnostics.nginx_config_error is match(".*cannot load certificate key.*", ignorecase=true)
-    #   action:
-    #     run_workflow_template:
-    #       name: servicenow_auto_remediate_tls-issue_workflow
-    #       organization: Demo2
-    #       job_args:
-    #         extra_vars:
-    #           incident_sys_id: "{{ event.incident_sys_id }}"
-    #           target_host: "{{ event.target_host }}"
-    #           close_notes: | # on Success
-    #             ########### EDA REMEDIATION STATUS UPDATE - SUCCESS #############
+    # Working remediation
+    - name: Remediate TLS certificate issue
+      condition: >
+          event.diagnostics is defined and
+          event.diagnostics.nginx_config_error is match(".*cannot load certificate key.*", ignorecase=true)
+      action:
+        run_workflow_template:
+          name: TLS_ISSUE_AUTO_REMEDIATE
+          organization: ai_ops_mcp_demo
+          job_args:
+            extra_vars:
+              incident_sys_id: "{{ event.incident_sys_id }}"
+              target_host: "{{ event.target_host }}"
+              close_notes: | # on Success
+                ########### EDA REMEDIATION STATUS UPDATE - SUCCESS #############
 
-    #             A TLS certificate verification failure was detected. This may be caused by an
-    #             expired certificate, a self-signed certificate that is not trusted, a missing
-    #             root or intermediate CA, or a mismatch between the certificate and its private key.
+                A TLS certificate verification failure was detected. This may be caused by an
+                expired certificate, a self-signed certificate that is not trusted, a missing
+                root or intermediate CA, or a mismatch between the certificate and its private key.
 
-    #             EDA has replaced the cert/key pair and remediated successfully.
-    #           work_notes: | # on Failure
-    #             ########## EDA REMEDIATION STATUS UPDATE - FAIL ##############
+                EDA has replaced the cert/key pair and remediated successfully.
+              work_notes: | # on Failure
+                ########## EDA REMEDIATION STATUS UPDATE - FAIL ##############
 
-    #             A TLS certificate verification failure was detected. This may be caused by an
-    #             expired certificate, a self-signed certificate that is not trusted, a missing
-    #             root or intermediate CA, or a mismatch between the certificate and its private key.
-    #             Please verify the certificate chain and ensure the correct key is configured.
+                A TLS certificate verification failure was detected. This may be caused by an
+                expired certificate, a self-signed certificate that is not trusted, a missing
+                root or intermediate CA, or a mismatch between the certificate and its private key.
+                Please verify the certificate chain and ensure the correct key is configured.
 
-    #             EDA has not been successful in the attempted remediation. Please investigate.
+                EDA has not been successful in the attempted remediation. Please investigate.
 
-    #             The diagnostics report below may be of some assistance.
-
-
-    # # Remediation will fail
-    # - name: Remediate nginx config error
-    #   condition: >
-    #       event.diagnostics is defined and
-    #       event.diagnostics.nginx_config_error is match(".*unknown directive.*", ignorecase=true)
-    #   action:
-    #     run_workflow_template:
-    #       name: servicenow_auto_remediate_config-issue_workflow
-    #       organization: Demo2
-    #       job_args:
-    #         extra_vars:
-    #           incident_sys_id: "{{ event.incident_sys_id }}"
-    #           target_host: "{{ event.target_host }}"
-    #           close_notes: | # on Success
-    #             ############# EDA REMEDIATION STATUS UPDATE - SUCCESS ##############
-
-    #             The nginx configuration file contains an unknown directive, which indicates
-    #             a potential typo or unsupported instruction.
-
-    #             EDA has successfully remediated.
-    #           work_notes: | # on Failure
-    #             ############# EDA REMEDIATION STATUS UPDATE - FAIL ####################
-
-    #             The nginx configuration file contains an unknown directive, which indicates
-    #             a potential typo or unsupported instruction. Please verify the config for
-    #             syntax issues or misconfigured modules.
-
-    #             EDA has not been successful in the attempted remediation. Please investigate.
-
-    #             The diagnostics report below may be of some assistance.
+                The diagnostics report below may be of some assistance.
 
 
-    # # No fix for this issue
-    # - name: Not a fix for this issue - update service now
-    #   condition: event.diagnostics is defined # defined but no known match for existing issue
-    #   action:
-    #     run_job_template:
-    #       name: servicenow_incident_update
-    #       organization: Demo2
-    #       job_args:
-    #         extra_vars:
-    #           incident_sys_id: "{{ event.incident_sys_id }}"
-    #           work_notes: | # on Failure
-    #             ########## EDA REMEDIATION STATUS ############
+    # Remediation will fail
+    - name: Remediate nginx config error
+      condition: >
+          event.diagnostics is defined and
+          event.diagnostics.nginx_config_error is match(".*unknown directive.*", ignorecase=true)
+      action:
+        run_workflow_template:
+          name: CONFIG_ISSUE_AUTO_REMEDIATE
+          organization: ai_ops_mcp_demo
+          job_args:
+            extra_vars:
+              incident_sys_id: "{{ event.incident_sys_id }}"
+              target_host: "{{ event.target_host }}"
+              close_notes: | # on Success
+                ############# EDA REMEDIATION STATUS UPDATE - SUCCESS ##############
 
-    #             The reported issue is not currently covered in EDAs rulebook for autoremediation.
+                The nginx configuration file contains an unknown directive, which indicates
+                a potential typo or unsupported instruction.
 
-    #             We recommend you investigate manually.
+                EDA has successfully remediated.
+              work_notes: | # on Failure
+                ############# EDA REMEDIATION STATUS UPDATE - FAIL ####################
 
-    #             The diagnostics report below may be of some assistance.
+                The nginx configuration file contains an unknown directive, which indicates
+                a potential typo or unsupported instruction. Please verify the config for
+                syntax issues or misconfigured modules.
 
-    #             ###########################################################
+                EDA has not been successful in the attempted remediation. Please investigate.
+
+                The diagnostics report below may be of some assistance.
+

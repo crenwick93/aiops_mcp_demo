@@ -34,19 +34,26 @@
     group: root
     mode: '0755'
 
-- name: Copy good TLS certificate from /var/certificates
+- name: Copy TLS certificate from /var/certificates
   ansible.builtin.copy:
     src: aiops-nginx-demo.sandbox566.opentlc.com.crt
     dest: /etc/nginx/ssl/server.crt
     mode: '0644'
   notify: reload nginx
 
-- name: Copy good TLS key from /var/certificates
+- name: Copy TLS key from /var/certificates
   ansible.builtin.copy:
     src: aiops-nginx-demo.sandbox566.opentlc.com.key
     dest: /etc/nginx/ssl/server.key
     mode: '0600'
   notify: reload nginx
+
+- name: Backup nginx ssl.conf
+  ansible.builtin.copy:
+    src: /etc/nginx/nginx.conf
+    dest: /etc/nginx/nginx.conf.bak
+    remote_src: true
+
 
 - name: Deploy nginx SSL config
   ansible.builtin.template:
