@@ -31,14 +31,13 @@
 ###############################################################################################
 #### RULES BELOW WILL BE TRIGGERED ON SECOND RUN (POST_EVENTS:TRUE) IF ANY CONDITIONS MATCH ###
 
-    # Working remediation
     - name: Remediate TLS certificate issue
       condition: >
           event.diagnostics is defined and
           event.diagnostics.nginx_config_error is match(".*cannot load certificate key.*", ignorecase=true)
       action:
         run_workflow_template:
-          name: TLS_ISSUE_AUTO_REMEDIATE
+          name: WORKFLOW-ATTEMPT_AUTO_REMEDIATION
           organization: ai_ops_mcp_demo
           job_args:
             extra_vars:
@@ -65,7 +64,6 @@
                 The diagnostics report below may be of some assistance.
 
 
-    # Remediation will fail
     - name: Remediate nginx config error
       condition: >
           event.diagnostics is defined and
