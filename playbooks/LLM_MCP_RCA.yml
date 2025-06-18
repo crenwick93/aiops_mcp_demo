@@ -1,4 +1,6 @@
 ---
+###############################################################################################
+#####################  Communicate with LLM for diagnosis ####################################
 - name: Send API request and debug complete response
   hosts: localhost
   gather_facts: false
@@ -41,45 +43,53 @@
         other:
           work_notes: |
             LLM with AAP Model Context Protocol response:
-
+            --------------------------------------------------------------------
             "{{ rca_response.json.answer }}"
-
+            --------------------------------------------------------------------
             We will now check if this relates to any existing problems in ServiceNow to help you resolve the issue.
 
-    # This will search short description and description within the problem records for a related problem.
-    # - name: Send prompt to ServiceNow MCP Client to check if any existing problems exist.
-    #   ansible.builtin.uri:
-    #     url: "http://ec2-13-41-159-27.eu-west-2.compute.amazonaws.com:5000/chat"
-    #     method: POST
-    #     headers:
-    #       accept: "application/json"
-    #       Content-Type: "application/json"
-    #     body:
-    #       prompt: >-
-    #         An Ansible job has failed giving the following output: "{{ rca_response.json.answer }}",
-    #         search the problem records for anything relating to this and give me the problem number if you find anything?
-    #     body_format: json
-    #     return_content: true
-    #     status_code: 200
-    #     timeout: 120
-    #   register: snow_problem_response
+###############################################################################################
+#####################  Communicate with LLM and search for problem record #####################
+- name: Send API request and debug complete response
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    #This will search short description and description within the problem records for a related problem.
+    - name: Send prompt to ServiceNow MCP Client to check if any existing problems exist.
+      ansible.builtin.uri:
+        url: "http://ec2-13-41-159-27.eu-west-2.compute.amazonaws.com:5000/chat"
+        method: POST
+        headers:
+          accept: "application/json"
+          Content-Type: "application/json"
+        body:
+          prompt: >-
+            An Ansible job has failed giving the following output: "{{ rca_response.json.answer }}",
+            search the problem records for anything relating to this and give me the problem number.
+            Also, if there is a workaround for this problem in the problem record, please let me know.
+        body_format: json
+        return_content: true
+        status_code: 200
+        timeout: 120
+      register: snow_problem_response
 
-    # - name: Send prompt to ServiceNow MCP Client to check if any existing problems exist
-    #   ansible.builtin.uri:
-    #     url: "http://ec2-13-41-159-27.eu-west-2.compute.amazonaws.com:5000/chat"
-    #     method: POST
-    #     headers:
-    #       accept: "application/json"
-    #       Content-Type: "application/json"
-    #     body:
-    #       prompt: >-
-    #         Are there any servicenow problems relating to ansible? If so, give me the problem number If you c.
-    #     body_format: json
-    #     return_content: true
-    #     status_code: 200
-    #     timeout: 120
-    #   register: snow_problem_response
 
-    # - name: Debug
-    #   ansible.builtin.debug:
-    #     var: snow_problem_response.json.answer
+###############################################################################################
+#####################  UPLOAD REPORT TO SERVICE NOW (IF REQUIRED) ############################
+- name: Upload report to ServiceNow
+  hosts: localhost
+  gather_facts: true
+  tasks:
+    # Create ServiceNow incident and set incident_sys_id so it's accessible in workflow or rulebook
+
+    - name: Update ticket with report
+      servicenow.itsm.incident:
+        sys_id: "{{ incident_sys_id }}"
+        state: 2 # In Progress
+        other:
+          work_notes: |
+            LLM with ServiceNow Model Context Protocol response:
+            --------------------------------------------------------------------
+            "{{ snow_problem_response.json.answer }}"
+            --------------------------------------------------------------------
+            We hope this gives you a head start in resolving the issue.
