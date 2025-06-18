@@ -74,7 +74,9 @@
     - name: Create readable diagnostics report
       ansible.builtin.set_fact:
         diagnostics_report: |
-          ################################### EDA REPORT ############################
+          Below is the diagnostics report
+
+          ################################### EDA Diagnostics REPORT ############################
 
           NGINX service active: {{ nginx_service_result.status.ActiveState == 'active' }}
           NGINX service error: {{ nginx_service_result.status.SubState if nginx_service_result.status.ActiveState != 'active' else '' }}
@@ -85,7 +87,7 @@
           Overall health: {{ 'ok' if (nginx_service_result.status.ActiveState == 'active') and (nginx_config_result.rc == 0) and (firewall_result.status.ActiveState == 'active') and ('443/tcp' in firewall_ports_result.stdout) else 'issues_detected' }}
 
 
-          EDA will attempt remedation...
+          EDA will attempt remedation... If the remediation fails EDA will use LLM with MCP to understand and problem and feedback.
 
 
 ###############################################################################################

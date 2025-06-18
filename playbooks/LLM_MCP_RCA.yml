@@ -39,7 +39,10 @@
         sys_id: "{{ incident_sys_id }}"
         state: 2 # In Progress
         other:
-          work_notes: "{{ rca_response }}"
+          work_notes: |
+            LLM with AAP Model Context Protocol response:
+
+            "{{ rca_response.json.answer }}"
 
     # This will search short description and description within the problem records for a related problem.
     # - name: Send prompt to ServiceNow MCP Client to check if any existing problems exist.
