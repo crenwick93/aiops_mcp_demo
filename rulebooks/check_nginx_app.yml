@@ -17,7 +17,7 @@
       condition: event.payload.commonLabels.alertname == "systemd failed service"
       action:
         run_job_template:
-          name: nginx_diagnostics
+          name: NGINX_DIAGNOSTICS
           organization: ai_ops_mcp_demo
           post_events: true
           job_args:
