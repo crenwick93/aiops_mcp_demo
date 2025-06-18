@@ -15,7 +15,7 @@
           accept: "application/json"
           Content-Type: "application/json"
         body:
-          prompt: "{{ rca_prompt }}"
+          prompt: "Why did job {{ nginx_fix_job_id }} fail? Give me instructions on how to fix it"
         body_format: json
         return_content: true
         status_code: 200
@@ -26,23 +26,38 @@
       ansible.builtin.debug:
         var: rca_response
 
+###############################################################################################
+#####################  UPLOAD REPORT TO SERVICE NOW (IF REQUIRED) ############################
+- name: Upload report to ServiceNow
+  hosts: localhost
+  gather_facts: true
+  tasks:
+    # Create ServiceNow incident and set incident_sys_id so it's accessible in workflow or rulebook
+
+    - name: Update ticket with report
+      servicenow.itsm.incident:
+        sys_id: "{{ incident_sys_id }}"
+        state: 2 # In Progress
+        other:
+          work_notes: "{{ rca_response }}"
+
     # This will search short description and description within the problem records for a related problem.
-    - name: Send prompt to ServiceNow MCP Client to check if any existing problems exist.
-      ansible.builtin.uri:
-        url: "http://ec2-13-41-159-27.eu-west-2.compute.amazonaws.com:5000/chat"
-        method: POST
-        headers:
-          accept: "application/json"
-          Content-Type: "application/json"
-        body:
-          prompt: >-
-            An Ansible job has failed giving the following output: "{{ rca_response.json.answer }}",
-            search the problem records for anything relating to this and give me the problem number if you find anything?
-        body_format: json
-        return_content: true
-        status_code: 200
-        timeout: 120
-      register: snow_problem_response
+    # - name: Send prompt to ServiceNow MCP Client to check if any existing problems exist.
+    #   ansible.builtin.uri:
+    #     url: "http://ec2-13-41-159-27.eu-west-2.compute.amazonaws.com:5000/chat"
+    #     method: POST
+    #     headers:
+    #       accept: "application/json"
+    #       Content-Type: "application/json"
+    #     body:
+    #       prompt: >-
+    #         An Ansible job has failed giving the following output: "{{ rca_response.json.answer }}",
+    #         search the problem records for anything relating to this and give me the problem number if you find anything?
+    #     body_format: json
+    #     return_content: true
+    #     status_code: 200
+    #     timeout: 120
+    #   register: snow_problem_response
 
     # - name: Send prompt to ServiceNow MCP Client to check if any existing problems exist
     #   ansible.builtin.uri:
@@ -60,6 +75,6 @@
     #     timeout: 120
     #   register: snow_problem_response
 
-    - name: Debug
-      ansible.builtin.debug:
-        var: snow_problem_response.json.answer
+    # - name: Debug
+    #   ansible.builtin.debug:
+    #     var: snow_problem_response.json.answer

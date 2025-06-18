@@ -8,6 +8,14 @@
 
   tasks:
 
+    - debug:
+       var: tower_job_id
+
+    - name: Set job ID
+      ansible.builtin.set_stats:
+        data:
+          nginx_fix_job_id: "{{ tower_job_id }}"
+
     - name: Ensure backup file exists
       ansible.builtin.stat:
         path: "{{ nginx_config_backup_path }}"
