@@ -44,6 +44,8 @@
 
             "{{ rca_response.json.answer }}"
 
+            We will now check if this relates to any existing problems in ServiceNow to help you resolve the issue.
+
     # This will search short description and description within the problem records for a related problem.
     # - name: Send prompt to ServiceNow MCP Client to check if any existing problems exist.
     #   ansible.builtin.uri:
