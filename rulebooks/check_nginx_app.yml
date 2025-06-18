@@ -22,8 +22,8 @@
           post_events: true
           job_args:
             extra_vars:
-              short_description: "{{ event.payload.commonLabels.instance }} is down"
-              description: "{{ event.payload.commonLabels.instance }} is down - EDA will run diagnostics"
+              short_description: "Systemd failure on {{ event.payload.commonLabels.instance }}"
+              description: "Systemd failure on {{ event.payload.commonLabels.instance }} - EDA will run diagnostics"
               impact: 1
               urgency: 1
               target_host: "{{ event.payload.commonLabels.instance }}"
