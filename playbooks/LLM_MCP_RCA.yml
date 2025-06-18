@@ -36,7 +36,7 @@
           Content-Type: "application/json"
         body:
           prompt: >-
-            An Ansible job has failed giving the following output: {{ rca_response.json.answer }},
+            An Ansible job has failed giving the following output: "{{ rca_response.json.answer }}",
             search the problem records for anything relating to this and give me the problem number if you find anything?
         body_format: json
         return_content: true

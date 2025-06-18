@@ -1,5 +1,5 @@
 - name: Setup nginx server
-  hosts: demo-app-nginx
+  hosts: apps
   become: true
   roles:
     - nginx
