@@ -11,7 +11,7 @@
 
     - name: Send prompt to AAP MCP Client for RCA
       ansible.builtin.uri:
-        url: "http://ec2-13-41-159-27.eu-west-2.compute.amazonaws.com:8001/chat"
+        url: "http://ec2-18-170-224-8.eu-west-2.compute.amazonaws.com:8001/chat"
         method: POST
         headers:
           accept: "application/json"
@@ -57,7 +57,7 @@
     #This will search short description and description within the problem records for a related problem.
     - name: Send prompt to ServiceNow MCP Client to check if any existing problems exist.
       ansible.builtin.uri:
-        url: "http://ec2-13-41-159-27.eu-west-2.compute.amazonaws.com:5000/chat"
+        url: "http://ec2-18-170-224-8.eu-west-2.compute.amazonaws.com:5000/chat"
         method: POST
         headers:
           accept: "application/json"
