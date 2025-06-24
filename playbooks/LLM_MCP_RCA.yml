@@ -64,9 +64,13 @@
           Content-Type: "application/json"
         body:
           prompt: >-
-            An Ansible job has failed giving the following output: "{{ rca_response.json.answer }}",
-            search the problem records for anything relating to this and give me the problem number.
-            Also, if there is a workaround for this problem in the problem record, please let me know.
+            An Ansible job has failed giving the following output:
+
+            "nginx PermissionError on overwriting configuration file"
+
+            Search the ServiceNow problem records for anything related to this error and tell me:
+              • The problem number (if any).
+              • Any documented workaround.
         body_format: json
         return_content: true
         status_code: 200
